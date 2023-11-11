@@ -2,15 +2,17 @@
 #define SOMETHING_H
 
 // 头文件处
+#include "stdio.h"
 #include "stdlib.h"// rand函数
 #include "time.h"// 随机时间
 #include "graphics.h"// 图形库
 #include "conio.h"// getch有用
 #include "windows.h"// 移动光标
+#include "iostream"
 
 // 宏定义处
-#define ROWS 20//行 y的数量 最多29 30要跳框 看不见上边框 
-#define COLS 70//列 x的数量 最多120 121要跳框 要乱码 
+#define ROWS 24//行 y的数量 最多29 30要跳框 看不见上边框 
+#define COLS 77//列 x的数量 最多120 121要跳框 要乱码 
 #define BOUNDARY_CHAR '#'// 边界字符
 #define SNAKE_HEAD_CHAR 'o' // 蛇的字符
 #define FO_CHAR '*'
@@ -22,13 +24,13 @@
 #define SNAKEHEIGHT (ROWS - 2) * (COLS - 2) - 1// 蛇身的长度
 
 // 定义全局变量和格式处
-typedef struct SnakeHeaden {
+typedef struct SnakeHeaden { // 蛇的结构
 	int index_COLS;// 蛇头的列 x值
 	int index_ROWS;// 蛇头的行 y值
 	char data;// 存蛇的字符
 	SnakeHeaden* next;// 指向下一个蛇身的指针
 };
-typedef struct FOOD {
+typedef struct FOOD { // 食物的结构
 	int FOOD_COLS;// 食物的列
 	int FOOD_ROWS;// 食物的行
 	char data;// 存食物的字符
@@ -67,7 +69,7 @@ void newDirection(int* Direction_chose/*与移动程序交互的变量*/);
 // 遍历链表到想要的位置
 SnakeHeaden* traverseSnakeBody(int length);
 // 收到上下左右指示后移动蛇头
-void move_snake(char currentDirection/*与移动程序交互的变量*/);
+int move_snake(char currentDirection/*与移动程序交互的变量*/);
 
 
 

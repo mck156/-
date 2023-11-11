@@ -1,4 +1,3 @@
-#include "stdio.h"
 #include "something.h"
 
 void disableCursor() {
@@ -9,36 +8,39 @@ void disableCursor() {
 	SetConsoleCursorInfo(outputHandle, &cursorAttributes);// 把光标信息覆盖到控制台上并输出
 }
 void wallgenerateMazeWalls() {
-	// 首/尾行
+	// 首尾行
 	for (int i = 0; i < COLS/*i是下标，所以边界是COLS-1*/; i++) { /*i为什么是从0至COLS-1？*/
 		mazewallCharacter[0][i] = mazewallCharacter[ROWS - 1][i] = BOUNDARY_CHAR;
 	}
-	// 首行与尾行中间的边框与空格
-	for (int j/*对应y值*/ = 1; j < ROWS - 1; j++)/*首行至尾行中间*/ { /*j为什么是从1至ROWS-2？*/
-		for (int i/*对应x值*/ = 0; i < COLS; i++)/*每行中的每个字符*/ { /*i为什么是从0至COLS-1？*/
+	// 首尾行中间部分
+	for (int j/*对应y值*/ = 1; j < ROWS - 1; j++)/*行*/ { /*j为什么是从1至ROWS-2？*/
+		for (int i/*对应x值*/ = 0; i < COLS; i++)/*列*/ { /*i为什么是从0至COLS-1？*/
 			if (i == 0/*首列*/ || i == COLS - 1/*尾列*/) {
-				mazewallCharacter[j][i] = BOUNDARY_CHAR;
+				mazewallCharacter[j][i] = BOUNDARY_CHAR;// 加边界
 				continue;
 			}
 			else {
-				mazewallCharacter[j][i] = ' ';
+				mazewallCharacter[j][i] = ' ';// 加地图内部空间
 			}
 		}
 	}
-	// 打印
+	// 打印地图边框
 	printMaze();
 }
 void printsnake() {	
-	SnakeHeaden* current = head;// 建立循环变量
-	while (current != NULL) { // 循环到最后一个指针时停止
+	// 对蛇进行遍历并打印
+	SnakeHeaden* current = (SnakeHeaden*)malloc(sizeof(SnakeHeaden));
+	current = head;
+	while (current != NULL) { 
 		moveToXY(current->index_COLS, current->index_ROWS);
 		printf("%c", current->data);
 		current = current->next;
 	}
+	free(current);
 }
 void printMaze() {
-	for (int j = 0; j < ROWS; j++) {
-		for (int i = 0; i < COLS; i++) {
+	for (int j = 0; j < ROWS; j++) {// 从上至下
+		for (int i = 0; i < COLS; i++) {// 从左至右
 			printf("%c", mazewallCharacter[j][i]);
 		}
 		printf("\n");
@@ -49,14 +51,14 @@ void initFood() {
 	// 随机生成食物位置
 	snake_food.FOOD_COLS = rand() % (COLS - 2) + 1;
 	snake_food.FOOD_ROWS = rand() % (ROWS - 2) + 1;
-	// 设置食物字符
+	// 存储or设置食物字符
 	snake_food.data = FO_CHAR;
 }
 void generateFood() {
-	initFood();// 生成食物位置 
-	// 检查食物与蛇是否位置相同
-	SnakeHeaden* current = (SnakeHeaden*)malloc(sizeof(SnakeHeaden));// 动态存储
-	current = head;// 初始化
+	initFood();
+	// 检查食物是否生在蛇身上(位置相同) 对蛇身进行遍历
+	SnakeHeaden* current = (SnakeHeaden*)malloc(sizeof(SnakeHeaden));// 
+	current = head;
 	while (current != NULL) {
 		if (current->index_COLS == snake_food.FOOD_COLS && current->index_ROWS == snake_food.FOOD_ROWS) {
 			initFood();// 重新生成食物位置
@@ -76,40 +78,38 @@ void initializeSnake() {
 	SnakeHeaden* p = (SnakeHeaden*)malloc(sizeof(SnakeHeaden));// p是第二个节点	
 	SnakeHeaden* q = (SnakeHeaden*)malloc(sizeof(SnakeHeaden));// q是第三个节点
 
-	// 建立三变量链表关系
+	// 建立链表关系 head - p - q
 	head->next = p;
 	p->next = q;
 	q->next = NULL;
-	// 随机取蛇头位置
+	// 蛇头位置在地图中间三行生成
 	srand(time(NULL));
-	if (COLS % 2 != 0) {
-		head->index_COLS = rand() % 4 + (COLS / 2 - 0.5 - 2);// 0.5是那个除不尽的
+	if (COLS % 2 != 0) {// 奇数行
+		head->index_COLS = rand() % 4 + (COLS / 2 - 0.5 - 2);// 0.5能保证减数为整数，以达到"COLS / 2 - 2"的效果
 	}
-	else {
+	else {// 偶数行
 		head->index_COLS = rand() % 4 + (COLS / 2 - 2);
 	}
-	if (ROWS % 2 != 0) {
+	if (ROWS % 2 != 0) {// 奇数列
 		head->index_ROWS = rand() % 4 + (ROWS / 2 - 0.5 - 2);
 	}
-	else {
+	else {// 偶数列
 		head->index_ROWS = rand() % 4 + (ROWS / 2 - 2);
-	}	
-	// 判断蛇在中间三排中的哪一排，并用getHemisphere存储
-	int getHemisphere;// 根据给定坐标获取该点所在的半球
-	if (head->index_ROWS - ROWS / 2 <= 2) {// 中间和中间向上一排
+	}
+	// 获取蛇在三行中的位置 判断向上or向下生成剩下的蛇身 并将方向用getHemisphere存储
+	int getHemisphere;// 向上or向下生成蛇身
+	if (head->index_ROWS - ROWS / 2 <= 2) {// 上两行
 		getHemisphere = -1;// 蛇往上 行-1
 	}
-	else {
+	else {// 第三行
 		getHemisphere = 1;// 蛇往下 行+1
 	}
 
-	// 蛇往上/下生成的代码
+	// 生成后两节蛇
 	p->index_ROWS = head->index_ROWS + getHemisphere;
 	q->index_ROWS = p->index_ROWS + getHemisphere;
-	p->index_COLS = q->index_COLS = head->index_COLS;// 上下移动，列COLS不变
-
-	// 把蛇字符附到节点上
-	head->data = p->data = q->data = SNAKE_HEAD_CHAR;
+	p->index_COLS = q->index_COLS = head->index_COLS;// 生成蛇时行变化，列不变
+	head->data = p->data = q->data = SNAKE_HEAD_CHAR;// 存蛇的字符
 
 	// 生成食物
 	generateFood();
@@ -174,7 +174,7 @@ SnakeHeaden* traverseSnakeBody(int length) {// 遍历链表到想要的位置
 	}
 	return NULL;
 }
-void move_snake(int current) {
+int move_snake(int current) {
 	
 	// 复制蛇头的位置
 	int prev_head_row = head->index_ROWS;// 蛇头的行值
@@ -190,9 +190,7 @@ void move_snake(int current) {
 
 	// 检测是否触碰边界
 	if (head->index_ROWS <= 0/*上边框*/ || head->index_ROWS >= ROWS - 1 /*下边框*/ || head->index_COLS <= 0/*左边框*/ || head->index_COLS >= COLS - 1/*右边框*/) {
-		moveToXY(0, ROWS);// 到底框下一排最前面
-		printf("碰到边界，游戏结束！");
-		exit(0);
+		return 1;
 	}
 
 	// 检查是否撞到自己的身体
@@ -201,9 +199,7 @@ void move_snake(int current) {
 	while (current_body != NULL) {
 		if (head->index_ROWS == current_body->index_ROWS && head->index_COLS == current_body->index_COLS) {
 			free(current_body);
-			moveToXY(0, ROWS);// 到底框下一排最前面
-			printf("碰到自己的身体，游戏结束！");
-			exit(0);
+			return 2;
 		}
 		current_body = current_body->next;
 	}
@@ -237,20 +233,26 @@ void move_snake(int current) {
 	// 把第一个结点打印出来
 	moveToXY(head->index_COLS, head->index_ROWS); printf("%c", head->data);
 
-	Sleep(200);
+	Sleep(160);
+	return 0;
 }
 
 int main() {
-	disableCursor();// 只能放首位
+	disableCursor();
 	wallgenerateMazeWalls();
 	initializeSnake();
 	int currentDirection = -2;// 蛇移动中的方向
+	int num;
 	while (1) {
 		newDirection(&currentDirection);
-		move_snake(currentDirection);
+		if((num = move_snake(currentDirection))!=0) break;
 	}
 	moveToXY(0, ROWS);// 到底框下一排最前面
-	printf("碰到边界，游戏结束！");
-	system("pause");
+	if (num == 1) {
+		printf("碰到边界，游戏结束！");
+	}
+	else if (num == 2) {
+		printf("碰到自己的身体，游戏结束！");
+	}
 	return 0;
 }

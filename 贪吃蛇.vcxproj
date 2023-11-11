@@ -127,7 +127,6 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClCompile Include="源.cpp" />
     <ClCompile Include="自己设计.cpp" />
   </ItemGroup>
   <ItemGroup>
