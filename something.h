@@ -50,7 +50,7 @@ void initFood();
 // 确定食物位置
 void generateFood();
 // 打印食物
-void printFood();
+void printFood(int num);/*1是介绍食物*/
 // 遍历链表 把蛇打印出来
 void printsnake();
 // 打印地图边框

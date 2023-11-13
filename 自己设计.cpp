@@ -17,17 +17,29 @@ void printsnake() {
 		current = current->next;
 	}
 	free(current);
+	if (head->index_COLS <= COLS / 2) {
+		moveToXY(head->index_COLS - 10, head->index_ROWS);
+		printf("这是蛇头!");
+		Sleep(2000);
+		moveToXY(head->index_COLS - 10, head->index_ROWS);
+		printf("         ");
+	}
+	else {
+		moveToXY(head->index_COLS + 1, head->index_ROWS);
+		printf("这是蛇头!");
+		Sleep(2000);
+		moveToXY(head->index_COLS + 1, head->index_ROWS);
+		printf("         ");
+	}	
 }
 void printMaze() {
-	int time = 10;
-	int times = 20;
 	// 第一排
 	for (int j = 0; j < COLS; j++) {
 		moveToXY(j, 0);
 		printf("%c", BOUNDARY_CHAR);
 		moveToXY(COLS - 1 - j, ROWS - 1);
 		printf("%c", BOUNDARY_CHAR);
-		Sleep(time);
+		Sleep(10);
 	}
 	// 第一列和尾列
 	for (int j = 1; j < ROWS - 1; j++) {
@@ -35,9 +47,13 @@ void printMaze() {
 		printf("%c", BOUNDARY_CHAR);
 		moveToXY(COLS - 1, j);
 		printf("%c", BOUNDARY_CHAR);
-		Sleep(times);
+		Sleep(20);
 	}
-
+	moveToXY(1, 1);
+	printf("这是边框哦！");
+	Sleep(2000);
+	moveToXY(1, 1);
+	printf("            ");
 }
 void initFood() {
 	srand(time(NULL));
@@ -62,9 +78,28 @@ void generateFood() {
 	}
 	free(current);
 }
-void printFood() {
+void printFood(int num) {
 	moveToXY(snake_food.FOOD_COLS, snake_food.FOOD_ROWS);
 	printf("%c", snake_food.data);
+	if (num == 1) {
+		if (snake_food.FOOD_COLS <= COLS / 2) {
+			printf("这是食物！");
+			Sleep(2000);
+			for (int i = 1; i <= 10; i++) {
+				moveToXY(snake_food.FOOD_COLS + i, snake_food.FOOD_ROWS);
+				printf(" ");
+			}		
+		}
+		else {
+			moveToXY(snake_food.FOOD_COLS - 10, snake_food.FOOD_ROWS);
+			printf("这是食物！");
+			Sleep(2000);
+			moveToXY(snake_food.FOOD_COLS - 10, snake_food.FOOD_ROWS);
+			printf("          ");
+		}
+	}
+
+
 }
 void initializeSnake() {
 	// 取蛇头后的两个蛇节点	
@@ -108,7 +143,7 @@ void initializeSnake() {
 	generateFood();
 	
 	// 打印食物和蛇
-	printFood();
+	printFood(1);// 第一次打印食物需要介绍
 	printsnake();
 }
 void moveToXY(int x, int y) {
@@ -201,7 +236,7 @@ int move_snake(int current) {
 	SnakeHeaden* new_head = (SnakeHeaden*)malloc(sizeof(SnakeHeaden));
 	if (head->index_COLS == snake_food.FOOD_COLS && head->index_ROWS == snake_food.FOOD_ROWS) {// 检查是否吃掉食物
 		generateFood();// 生成食物
-		printFood();// 打印食物
+		printFood(0);// 打印食物，其他次打印食物，不用介绍
 		new_head->data = SNAKE_HEAD_CHAR;// 新建节点要赋值
 		snakelength++;
 	}
