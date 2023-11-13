@@ -1,4 +1,4 @@
-#include "something.h"
+#include "PlayGames.h"
 
 void disableCursor() {
 	CONSOLE_CURSOR_INFO cursorAttributes;// 具体地表明这个变量存储了有关光标属性的信息
@@ -17,6 +17,8 @@ void printsnake() {
 		current = current->next;
 	}
 	free(current);
+
+	// 首次进入会有提示（提示本示）
 	if (head->index_COLS <= COLS / 2) {// 蛇头在左半边 字在右半边 箭头指向左 
 		moveToXY(head->index_COLS + 1, head->index_ROWS);
 		printf("←这是蛇头！");
@@ -49,6 +51,8 @@ void printMaze() {
 		printf("%c", BOUNDARY_CHAR);
 		Sleep(20);
 	}
+
+	// 首次进入会有提示（提示本示）
 	moveToXY(1, 1);
 	printf("←这是边框哦！");
 	Sleep(2000);
@@ -81,6 +85,8 @@ void generateFood() {
 void printFood(int num) {
 	moveToXY(snake_food.FOOD_COLS, snake_food.FOOD_ROWS);
 	printf("%c", snake_food.data);
+
+	// 首次进入会有提示（提示本示）
 	if (num == 1) {
 		if (snake_food.FOOD_COLS <= COLS / 2) {// 食物在左 字在右 箭头向左
 			moveToXY(snake_food.FOOD_COLS + 1, snake_food.FOOD_ROWS);
