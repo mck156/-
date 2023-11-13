@@ -7,26 +7,6 @@ void disableCursor() {
 	HANDLE outputHandle = GetStdHandle(STD_OUTPUT_HANDLE);// 涉及控制台输出
 	SetConsoleCursorInfo(outputHandle, &cursorAttributes);// 把光标信息覆盖到控制台上并输出
 }
-void wallgenerateMazeWalls() {
-	// 首尾行
-	for (int i = 0; i < COLS/*i是下标，所以边界是COLS-1*/; i++) { /*i为什么是从0至COLS-1？*/
-		mazewallCharacter[0][i] = mazewallCharacter[ROWS - 1][i] = BOUNDARY_CHAR;
-	}
-	// 首尾行中间部分
-	for (int j/*对应y值*/ = 1; j < ROWS - 1; j++)/*行*/ { /*j为什么是从1至ROWS-2？*/
-		for (int i/*对应x值*/ = 0; i < COLS; i++)/*列*/ { /*i为什么是从0至COLS-1？*/
-			if (i == 0/*首列*/ || i == COLS - 1/*尾列*/) {
-				mazewallCharacter[j][i] = BOUNDARY_CHAR;// 加边界
-				continue;
-			}
-			else {
-				mazewallCharacter[j][i] = ' ';// 加地图内部空间
-			}
-		}
-	}
-	// 打印地图边框
-	printMaze();
-}
 void printsnake() {	
 	// 对蛇进行遍历并打印
 	SnakeHeaden* current = (SnakeHeaden*)malloc(sizeof(SnakeHeaden));
@@ -39,12 +19,25 @@ void printsnake() {
 	free(current);
 }
 void printMaze() {
-	for (int j = 0; j < ROWS; j++) {// 从上至下
-		for (int i = 0; i < COLS; i++) {// 从左至右
-			printf("%c", mazewallCharacter[j][i]);
-		}
-		printf("\n");
+	int time = 10;
+	int times = 20;
+	// 第一排
+	for (int j = 0; j < COLS; j++) {
+		moveToXY(j, 0);
+		printf("%c", BOUNDARY_CHAR);
+		moveToXY(COLS - 1 - j, ROWS - 1);
+		printf("%c", BOUNDARY_CHAR);
+		Sleep(time);
 	}
+	// 第一列和尾列
+	for (int j = 1; j < ROWS - 1; j++) {
+		moveToXY(0, ROWS - 1 - j);
+		printf("%c", BOUNDARY_CHAR);
+		moveToXY(COLS - 1, j);
+		printf("%c", BOUNDARY_CHAR);
+		Sleep(times);
+	}
+
 }
 void initFood() {
 	srand(time(NULL));
@@ -84,16 +77,16 @@ void initializeSnake() {
 	q->next = NULL;
 	// 蛇头位置在地图中间三行生成
 	srand(time(NULL));
-	if (COLS % 2 != 0) {// 奇数行
+	if (COLS % 2 != 0) {// 奇数列
 		head->index_COLS = rand() % 4 + (COLS / 2 - 0.5 - 2);// 0.5能保证减数为整数，以达到"COLS / 2 - 2"的效果
 	}
-	else {// 偶数行
+	else {// 偶数列
 		head->index_COLS = rand() % 4 + (COLS / 2 - 2);
 	}
-	if (ROWS % 2 != 0) {// 奇数列
+	if (ROWS % 2 != 0) {// 奇数行
 		head->index_ROWS = rand() % 4 + (ROWS / 2 - 0.5 - 2);
 	}
-	else {// 偶数列
+	else {// 偶数行
 		head->index_ROWS = rand() % 4 + (ROWS / 2 - 2);
 	}
 	// 获取蛇在三行中的位置 判断向上or向下生成剩下的蛇身 并将方向用getHemisphere存储
@@ -146,10 +139,10 @@ int isDirectionKey(char direction/*方向字符*/) {
 void newDirection(int* Direction_chose) {
 	if (!_kbhit()) {// 没有键入
 		if (*Direction_chose == -2) {// 首次进入没按键
-			if (head->index_COLS >= COLS / 2) {// 头节点在右半层，则往左移动
+			if (head->index_COLS >= COLS / 2) {// 头节点在右半边，则往左移动
 				*Direction_chose = LEFT;
 			}
-			else {// 头节点在左半层，则往右移动
+			else {// 头节点在左半边，则往右移动
 				*Direction_chose = RIGHT;
 			}
 		}
@@ -164,12 +157,12 @@ void newDirection(int* Direction_chose) {
 }
 SnakeHeaden* traverseSnakeBody(int length) {// 遍历链表到想要的位置
 	SnakeHeaden* current = head;
-	int num = 1;
+	int num_ber = 1;
 	while (current != NULL) {
-		if (num == length) {
+		if (num_ber == length) {
 			return current;
 		}
-		num++;
+		num_ber++;
 		current = current->next;
 	}
 	return NULL;
@@ -204,10 +197,9 @@ int move_snake(int current) {
 		current_body = current_body->next;
 	}
 	free(current_body);
-
-	// 检查是否吃掉食物
+	
 	SnakeHeaden* new_head = (SnakeHeaden*)malloc(sizeof(SnakeHeaden));
-	if (head->index_COLS == snake_food.FOOD_COLS && head->index_ROWS == snake_food.FOOD_ROWS) {
+	if (head->index_COLS == snake_food.FOOD_COLS && head->index_ROWS == snake_food.FOOD_ROWS) {// 检查是否吃掉食物
 		generateFood();// 生成食物
 		printFood();// 打印食物
 		new_head->data = SNAKE_HEAD_CHAR;// 新建节点要赋值
@@ -233,13 +225,13 @@ int move_snake(int current) {
 	// 把第一个结点打印出来
 	moveToXY(head->index_COLS, head->index_ROWS); printf("%c", head->data);
 
-	Sleep(160);
+	Sleep(100);
 	return 0;
 }
 
 int main() {
 	disableCursor();
-	wallgenerateMazeWalls();
+	printMaze();
 	initializeSnake();
 	int currentDirection = -2;// 蛇移动中的方向
 	int num;

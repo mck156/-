@@ -36,7 +36,6 @@ typedef struct FOOD { // 食物的结构
 	char data;// 存食物的字符
 };
 
-char mazewallCharacter[ROWS][COLS];// 边框
 SnakeHeaden SnakeHead;// 蛇头和蛇身的代码
 SnakeHeaden* head = (SnakeHeaden*)malloc(sizeof(SnakeHeaden));// 蛇头的指针
 int snakelength = 3;// 蛇身体节数
@@ -46,8 +45,6 @@ FOOD snake_food;
 
 // 禁用或关闭光标的可见性
 void disableCursor();
-// 边框
-void wallgenerateMazeWalls();
 // 生成食物位置(没有错误检测)
 void initFood();
 // 确定食物位置
@@ -56,7 +53,7 @@ void generateFood();
 void printFood();
 // 遍历链表 把蛇打印出来
 void printsnake();
-// 打印地图
+// 打印地图边框
 void printMaze();
 // 随机生成三个蛇节点的位置，以及食物的位置
 void initializeSnake();
@@ -69,7 +66,7 @@ void newDirection(int* Direction_chose/*与移动程序交互的变量*/);
 // 遍历链表到想要的位置
 SnakeHeaden* traverseSnakeBody(int length);
 // 收到上下左右指示后移动蛇头
-int move_snake(char currentDirection/*与移动程序交互的变量*/);
+int move_snake(int current/*与移动程序交互的变量*/);
 
 
 
