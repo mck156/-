@@ -17,19 +17,19 @@ void printsnake() {
 		current = current->next;
 	}
 	free(current);
-	if (head->index_COLS <= COLS / 2) {
-		moveToXY(head->index_COLS - 10, head->index_ROWS);
-		printf("这是蛇头!");
+	if (head->index_COLS <= COLS / 2) {// 蛇头在左半边 字在右半边 箭头指向左 
+		moveToXY(head->index_COLS + 1, head->index_ROWS);
+		printf("←这是蛇头！");
 		Sleep(2000);
-		moveToXY(head->index_COLS - 10, head->index_ROWS);
-		printf("         ");
+		moveToXY(head->index_COLS + 1, head->index_ROWS);
+		printf("            ");
 	}
 	else {
-		moveToXY(head->index_COLS + 1, head->index_ROWS);
-		printf("这是蛇头!");
+		moveToXY(head->index_COLS - 12, head->index_ROWS);
+		printf("这是蛇头!→");
 		Sleep(2000);
-		moveToXY(head->index_COLS + 1, head->index_ROWS);
-		printf("         ");
+		moveToXY(head->index_COLS - 12, head->index_ROWS);
+		printf("           ");
 	}	
 }
 void printMaze() {
@@ -39,7 +39,7 @@ void printMaze() {
 		printf("%c", BOUNDARY_CHAR);
 		moveToXY(COLS - 1 - j, ROWS - 1);
 		printf("%c", BOUNDARY_CHAR);
-		Sleep(10);
+		Sleep(10);// 边框
 	}
 	// 第一列和尾列
 	for (int j = 1; j < ROWS - 1; j++) {
@@ -50,10 +50,10 @@ void printMaze() {
 		Sleep(20);
 	}
 	moveToXY(1, 1);
-	printf("这是边框哦！");
+	printf("←这是边框哦！");
 	Sleep(2000);
 	moveToXY(1, 1);
-	printf("            ");
+	printf("              ");
 }
 void initFood() {
 	srand(time(NULL));
@@ -82,24 +82,21 @@ void printFood(int num) {
 	moveToXY(snake_food.FOOD_COLS, snake_food.FOOD_ROWS);
 	printf("%c", snake_food.data);
 	if (num == 1) {
-		if (snake_food.FOOD_COLS <= COLS / 2) {
-			printf("这是食物！");
+		if (snake_food.FOOD_COLS <= COLS / 2) {// 食物在左 字在右 箭头向左
+			moveToXY(snake_food.FOOD_COLS + 1, snake_food.FOOD_ROWS);
+			printf("←这是食物！");
 			Sleep(2000);
-			for (int i = 1; i <= 10; i++) {
-				moveToXY(snake_food.FOOD_COLS + i, snake_food.FOOD_ROWS);
-				printf(" ");
-			}		
+			moveToXY(snake_food.FOOD_COLS + 1, snake_food.FOOD_ROWS);
+			printf("            ");
 		}
-		else {
-			moveToXY(snake_food.FOOD_COLS - 10, snake_food.FOOD_ROWS);
-			printf("这是食物！");
+		else {// 食物在右 字在左 箭头向右
+			moveToXY(snake_food.FOOD_COLS - 12, snake_food.FOOD_ROWS);
+			printf("这是食物！→");
 			Sleep(2000);
-			moveToXY(snake_food.FOOD_COLS - 10, snake_food.FOOD_ROWS);
-			printf("          ");
+			moveToXY(snake_food.FOOD_COLS - 12, snake_food.FOOD_ROWS);
+			printf("            ");
 		}
 	}
-
-
 }
 void initializeSnake() {
 	// 取蛇头后的两个蛇节点	
@@ -145,6 +142,10 @@ void initializeSnake() {
 	// 打印食物和蛇
 	printFood(1);// 第一次打印食物需要介绍
 	printsnake();
+
+	// 打印旁边的分数（目前是节数）
+	moveToXY(COLS + 4, 4);
+	printf("蛇身节数：%d", snakelength); // 节数的坐标（COLS + 14, 4）
 }
 void moveToXY(int x, int y) {
 	COORD position;// 用position放x和y的坐标
@@ -239,6 +240,10 @@ int move_snake(int current) {
 		printFood(0);// 打印食物，其他次打印食物，不用介绍
 		new_head->data = SNAKE_HEAD_CHAR;// 新建节点要赋值
 		snakelength++;
+
+		// 改变蛇节的计数
+		moveToXY(COLS + 14, 4);
+		printf("%d", snakelength);
 	}
 	else { // 正常蛇的移动
 		
@@ -260,7 +265,7 @@ int move_snake(int current) {
 	// 把第一个结点打印出来
 	moveToXY(head->index_COLS, head->index_ROWS); printf("%c", head->data);
 
-	Sleep(100);
+	Sleep(NORMAL_SPEED);
 	return 0;
 }
 

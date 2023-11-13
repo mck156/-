@@ -11,11 +11,12 @@
 #include "iostream"
 
 // 宏定义处
-#define ROWS 24//行 y的数量 最多29 30要跳框 看不见上边框 
-#define COLS 77//列 x的数量 最多120 121要跳框 要乱码 
+#define ROWS 10//行 y的数量 最多29 30要跳框 看不见上边框 最少10行
+#define COLS 28//列 x的数量 最多120 121要跳框 要乱码 最少28列
 #define BOUNDARY_CHAR '#'// 边界字符
 #define SNAKE_HEAD_CHAR 'o' // 蛇的字符
 #define FO_CHAR '*'
+#define NORMAL_SPEED 100
 // 底下四个是方向键
 #define UP -1
 #define DOWN 1
