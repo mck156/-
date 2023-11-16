@@ -2,6 +2,7 @@
 #define PLAYGAMES_H
 
 // 头文件处
+
 #include "stdio.h"
 #include "stdlib.h"// rand函数
 #include "time.h"// 随机时间
@@ -9,38 +10,8 @@
 #include "conio.h"// getch有用
 #include "windows.h"// 移动光标
 #include "iostream"
-
-// 宏定义处
-#define ROWS 10//行 y的数量 最多29 30要跳框 看不见上边框 最少10行
-#define COLS 28//列 x的数量 最多120 121要跳框 要乱码 最少28列
-#define BOUNDARY_CHAR '#'// 边界字符
-#define SNAKE_HEAD_CHAR 'o' // 蛇的字符
-#define FO_CHAR '*'
-#define NORMAL_SPEED 100
-// 底下四个是方向键
-#define UP -1
-#define DOWN 1
-#define LEFT 0
-#define RIGHT 2
-#define SNAKEHEIGHT (ROWS - 2) * (COLS - 2) - 1// 蛇身的长度
-
-// 定义全局变量和格式处
-typedef struct SnakeHeaden { // 蛇的结构
-	int index_COLS;// 蛇头的列 x值
-	int index_ROWS;// 蛇头的行 y值
-	char data;// 存蛇的字符
-	SnakeHeaden* next;// 指向下一个蛇身的指针
-};
-typedef struct FOOD { // 食物的结构
-	int FOOD_COLS;// 食物的列
-	int FOOD_ROWS;// 食物的行
-	char data;// 存食物的字符
-};
-
-SnakeHeaden SnakeHead;// 蛇头和蛇身的代码
-SnakeHeaden* head = (SnakeHeaden*)malloc(sizeof(SnakeHeaden));// 蛇头的指针
-int snakelength = 3;// 蛇身体节数
-FOOD snake_food;
+#include "string.h"
+#include "settings.h"// 宏定义 全局变量 结构体
 
 // 所有函数声明
 
@@ -63,11 +34,17 @@ void disableCursor();
 	// 对比上下左右是否为wsad, 比对成功返回该方向的值，比对失败返回7
 int isDirectionKey(char direction/*方向字符*/);
 	// 打印地图边框
-void printMaze();
+void printMaze(int num/*如果为1，则输出提示，否则不输出提示*/);
 	// 遍历链表到想要的位置
 SnakeHeaden* traverseSnakeBody(int length);
-
-
+	// 最后的结果处理
+void last_wait(int num/*接受退出原因并按字典打印*/);
+	// 神秘奖励主界面
+void WelcomeScreen();
+	// 首次进入游戏的介绍
+void initTextEffects();
+	// 查找光标的横坐标x
+int GetConsoleCursorY();
 
 // 关于食物
 	// 生成食物位置(没有错误检测)
@@ -75,17 +52,6 @@ void initFood();
 	// 确定食物位置
 void generateFood();
 	// 打印食物
-void printFood(int num);/*1是介绍食物*/
-
-
-
-
-
-
-
-
-
-
-
+void printFood(int num/*如果为1，则输出提示，否则不输出提示*/);/*1是介绍食物*/
 
 #endif
