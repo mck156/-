@@ -7,7 +7,7 @@ void disableCursor() {
 	HANDLE outputHandle = GetStdHandle(STD_OUTPUT_HANDLE);// 涉及控制台输出
 	SetConsoleCursorInfo(outputHandle, &cursorAttributes);// 把光标信息覆盖到控制台上并输出
 }
-void printsnake() {
+void printsnake(int num) {
 	// 对蛇进行遍历并打印
 	SnakeHeaden* current = (SnakeHeaden*)malloc(sizeof(SnakeHeaden));
 	current = head;
@@ -19,19 +19,21 @@ void printsnake() {
 	free(current);
 
 	// 首次进入会有提示（提示本示）因为生成蛇头只在游戏开始 所以不用设置变量 除非改变玩法
-	if (head->index_COLS <= COLS / 2) {// 蛇头在左半边 字在右半边 箭头指向左 
-		moveToXY(head->index_COLS + 1, head->index_ROWS);
-		printf("←这是蛇头！");
-		Sleep(2000);
-		moveToXY(head->index_COLS + 1, head->index_ROWS);
-		printf("            ");
-	}
-	else {
-		moveToXY(head->index_COLS - 12, head->index_ROWS);
-		printf("这是蛇头!→");
-		Sleep(2000);
-		moveToXY(head->index_COLS - 12, head->index_ROWS);
-		printf("           ");
+	if (num == 1) {
+		if (head->index_COLS <= COLS / 2) {// 蛇头在左半边 字在右半边 箭头指向左 
+			moveToXY(head->index_COLS + 1, head->index_ROWS);
+			printf("←这是蛇头！");
+			Sleep(2000);
+			moveToXY(head->index_COLS + 1, head->index_ROWS);
+			printf("            ");
+		}
+		else {
+			moveToXY(head->index_COLS - 12, head->index_ROWS);
+			printf("这是蛇头!→");
+			Sleep(2000);
+			moveToXY(head->index_COLS - 12, head->index_ROWS);
+			printf("           ");
+		}
 	}
 }
 int GetConsoleCursorY() {
@@ -44,7 +46,7 @@ int GetConsoleCursorY() {
 	return csbi.dwCursorPosition.X;
 }
 void initTextEffects() {
-	char texts[] = "你好，这是一个贪吃蛇的游玩引导程序，旨在学习贪吃蛇的基本操作以及体验贪吃蛇的玩法！\b请提前将输入法切换至英语模式，并用鼠标点击一下屏幕\b请不要调整窗口的大小，以免出现以外状况！\b现在开始游戏,祝你玩的开心o(=•ェ•=)m\b";
+	char texts[] = "你好，这是一个贪吃蛇的游玩引导程序，旨在学习贪吃蛇的基本操作以及体验贪吃蛇的玩法！\b请提前将输入法切换至英语模式，并用鼠标点击一下屏幕\b请不要调整窗口的大小，以免出现以外状况！\b现在开始游戏,祝你玩的开心\b";
 	char* text = texts;
 	// 用指针指向字符，进行比对
 	while (*text != '\0') {// 字符数组末尾
@@ -136,6 +138,10 @@ void printFood(int num) {
 		}
 	}
 }
+void ClearInput() {
+	HANDLE hStdin = GetStdHandle(STD_INPUT_HANDLE);// 获取句柄
+	FlushConsoleInputBuffer(hStdin);// 清空缓存区
+}
 void initializeSnake() {
 	// 取蛇头后的两个蛇节点	
 	SnakeHeaden* p = (SnakeHeaden*)malloc(sizeof(SnakeHeaden));// p是第二个节点	
@@ -179,11 +185,13 @@ void initializeSnake() {
 	
 	// 打印食物和蛇
 	printFood(1);// 第一次打印食物需要介绍
-	printsnake();
+	printsnake(1);
 
 	// 打印旁边的分数（目前是节数）
 	moveToXY(COLS + 4, 4);
 	printf("蛇身节数：%d", snakelength); // 节数的坐标（COLS + 14, 4）
+
+	ClearInput();
 }
 void moveToXY(int x, int y) {
 	COORD position;// 用position放x和y的坐标
@@ -225,6 +233,13 @@ void newDirection(int* Direction_chose) {
 	else {
 		char enteringDirection;/*键盘输入的方向字符*/
 		enteringDirection = _getch();
+		if (enteringDirection == ' ') {
+			char space = '$';
+			while (space != ' ') {
+				space = _getch();
+				if (space == ' ') return;
+			}
+		}
 		if (isDirectionKey(enteringDirection) == 7) return;// 比对失败，退出函数
 		*Direction_chose = isDirectionKey(enteringDirection);// 把wsad变成对应数字
 	}
@@ -241,7 +256,7 @@ SnakeHeaden* traverseSnakeBody(int length) {// 遍历链表到想要的位置
 	}
 	return NULL;
 }
-int move_snake(int current) {
+int move_snake(int current, int num) {
 	
 	// 复制蛇头的位置
 	int prev_head_row = head->index_ROWS;// 蛇头的行值
@@ -271,11 +286,6 @@ int move_snake(int current) {
 		current_body = current_body->next;
 	}
 	free(current_body);
-	
-	// 检查长度是否为20 若为20 则跳转到另一个界面 当前仅为刷新界面+在中间写"闯关成功"
-	if (snakelength == 20) {
-		return 3;		
-	}
 
 	SnakeHeaden* new_head = (SnakeHeaden*)malloc(sizeof(SnakeHeaden));
 
@@ -311,7 +321,17 @@ int move_snake(int current) {
 	// 把第一个结点打印出来
 	moveToXY(head->index_COLS, head->index_ROWS); printf("%c", head->data);
 
-	Sleep(NORMAL_SPEED);
+	// 检查长度是否为20 若为20 则跳转到另一个界面 当前仅为刷新界面+在中间写"闯关成功"
+	if (snakelength == 5 && num == 1) {
+		return 3;
+	}
+	
+	if (current == LEFT || current == RIGHT) {
+		Sleep(NORMAL_SPEED_ROWS);
+	}
+	else if (current == UP || current == DOWN) {
+		Sleep(NORMAL_SPEED_COLS);
+	}
 	return 0;
 }
 
@@ -351,7 +371,7 @@ void last_wait(int num) {
 	}
 }
 
-void WelcomeScreen() {
+void WelcomeScreen(int* currentDirection) {
 	printf("=======================================\n");
 	printf("          欢迎来到贪吃蛇游戏           \n");
 	printf("=======================================\n");
@@ -364,20 +384,61 @@ void WelcomeScreen() {
 	printf("=======================================\n");
 	printf("                                       \n");
 	printf("     请做出你的选择：");
+	int choice;
+	ClearInput();
+	scanf("%d", &choice);
+	system("cls");
+	switch (choice) {
+	case 1:
+		InfiniteMode(currentDirection);
+		break;
+	default:
+		break;
+	}
+}
+
+void InfiniteMode(int* currentDirection) {
+	printMaze(0);
+	printsnake(0);
+	generateFood();
+	printFood(0);
+	// 打印旁边的分数（目前是节数）
+	moveToXY(COLS + 4, 4);
+	printf("蛇身节数：%d", snakelength); // 节数的坐标（COLS + 14, 4）
+	moveToXY(COLS + 4, 5);
+	printf("倒数 ");
+	for (int i = 3; i > 0; i--) {
+		moveToXY(COLS + 9, 5);
+		printf("%d", i);
+		Sleep(1000);
+	}
+	moveToXY(COLS + 4, 5);
+	printf("      ");
+	int choice;
+	while (1) {
+		newDirection(currentDirection);
+		if ((choice = move_snake(*currentDirection,0)) != 0) break;
+	}
+	last_wait(choice);
+	moveToXY(0, ROWS);
+}
+
+void initScreen(int* currentDirection, int num/*看是不是首次进入程序*/) {
+	printMaze(num);
+	initializeSnake();
+	int choice;
+	while (1) {
+		newDirection(currentDirection);
+		if((choice = move_snake(*currentDirection,1)) != 0) break;
+	}
+	last_wait(choice);// 结算程序结束后，满足惊喜条件就去游戏主界面，不满足直接走了
 }
 
 int main() {
-	initTextEffects();
+	initTextEffects();// 介绍程序
 	disableCursor();
-	printMaze(1);
-	initializeSnake();
 	int currentDirection = -2;// 蛇移动中的方向
-	int num;
-	while (1) {
-		newDirection(&currentDirection);
-		if((num = move_snake(currentDirection))!=0) break;
-	}
-	last_wait(num);// 结算程序结束后，满足惊喜条件就去游戏主界面，不满足直接走了
-	WelcomeScreen();
+	initScreen(&currentDirection, 1);
+	WelcomeScreen(&currentDirection);
 	return 0;
 }
