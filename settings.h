@@ -4,13 +4,13 @@
 #pragma warning(disable:4996)
 // 宏定义处
 
-#define ROWS 20//行 y的数量 最多29 30要跳框 看不见上边框 最少10行
+#define ROWS 25//行 y的数量 最多29 30要跳框 看不见上边框 最少10行
 #define COLS 70//列 x的数量 最多120 121要跳框 要乱码 最少28列
 #define BOUNDARY_CHAR '#'// 边界字符
 #define SNAKE_HEAD_CHAR 'o' // 蛇的字符
 #define FO_CHAR '*'
-#define NORMAL_SPEED_ROWS 100
-#define NORMAL_SPEED_COLS 115
+#define NORMAL_SPEED_ROWS 100 // 行速度
+#define NORMAL_SPEED_COLS 200 // 列速度
 // 底下四个是方向键
 #define UP -1
 #define DOWN 1
@@ -35,10 +35,10 @@ typedef struct FOOD { // 食物的结构
 
 // 定义全局变量
 
-SnakeHeaden SnakeHead;// 蛇头和蛇身的代码
 SnakeHeaden* head = (SnakeHeaden*)malloc(sizeof(SnakeHeaden));// 蛇头的指针
 int snakelength = 3;// 蛇身体节数
 FOOD snake_food;
+int snake_Point = 0;
 
 #endif // !SETTINGS_H
 
