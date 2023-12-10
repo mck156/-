@@ -5,7 +5,7 @@
 // 宏定义处
 
 #define ROWS 25//行 y的数量 最多29 30要跳框 看不见上边框 最少10行
-#define COLS 70//列 x的数量 最多120 121要跳框 要乱码 最少28列
+#define COLS 50//列 x的数量 最多120 121要跳框 要乱码 最少28列
 #define BOUNDARY_CHAR '#'// 边界字符
 #define SNAKE_HEAD_CHAR 'o' // 蛇的字符
 #define FO_CHAR '*'
@@ -18,6 +18,7 @@
 #define RIGHT 2
 #define SPACEBAR 3
 #define SNAKEHEIGHT (ROWS - 2) * (COLS - 2) - 1// 蛇身的长度
+
 
 // 定义结构体
 
@@ -35,10 +36,14 @@ typedef struct FOOD { // 食物的结构
 
 // 定义全局变量
 
-SnakeHeaden* head = (SnakeHeaden*)malloc(sizeof(SnakeHeaden));// 蛇头的指针
+SnakeHeaden* head = (SnakeHeaden*)malloc(sizeof(SnakeHeaden));// 蛇头指针
 int snakelength = 3;// 蛇身体节数
 FOOD snake_food;
+FOOD snake_foods[(ROWS - 5) * (COLS - 10)];
 int snake_Point = 0;
+
+HANDLE wHnd; /* write (output) handle */
+HANDLE rHnd; /* read (input handle */
 
 #endif // !SETTINGS_H
 
