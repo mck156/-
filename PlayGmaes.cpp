@@ -49,7 +49,7 @@ int GetConsoleCursorY() {
 }
 
 int story_addsnake(SnakeHeaden* currented/*当前位置*/, int timenum/*几节蛇*/) {
-// 找到蛇尾位置需要找到当前蛇的最后一个位置，即需要遍历 由于需要移动 则改变原来位置 到新位置上
+	// 找到蛇尾位置需要找到当前蛇的最后一个位置，即需要遍历 由于需要移动 则改变原来位置 到新位置上
 	SnakeHeaden* current = (SnakeHeaden*)malloc(sizeof(SnakeHeaden));// 遍历中的当前位置
 	current = head;
 	int prev_COLS, prev_ROWS;// 存放新建蛇尾的xy坐标
@@ -82,16 +82,33 @@ int story_addsnake(SnakeHeaden* currented/*当前位置*/, int timenum/*几节�
 		return story_addsnake(current, timenum);
 	}
 	else {
-		free(current);// 将current注销掉
 		return timenum;
 	}
 }
 
-void initTextEffects() {
+void initTextEffects(int num) {
 	SetConsoleTitle(TEXT("情景介绍"));
-	char texts1[] = "你好，这是一个贪吃蛇的游玩引导程序，旨在学习贪吃蛇的基本操作以及体验贪吃蛇的玩法！\b请提前将输入法切换至英语模式，并用鼠标点击一下屏幕\b请不要调整窗口的大小，以免出现以外状况！\b你可以上下左右移动，并按wsad键。\b也可以按空格键暂停\b引导程序结束后会有神秘惊喜哦！\b赶快开始游戏吧！\b";
-//	char texts2[] = "";
+	char texts1[] = "你好，这是一个贪吃蛇的游玩引导程序，旨在学习贪吃蛇的基本操作以及体验贪吃蛇的玩法！\b请提前将输入法切换至英语模式，并用鼠标点击一下屏幕\b请不要调整窗口的大小，以免出现以外状况！\b你可以上下左右移动，并按wsad键。也可以按空格键暂停\b引导程序结束后会有神秘惊喜哦！赶快开始游戏吧！\b";
+	char texts2[] = "哇！前面有神奇的彩虹石耶，马上我们就过去了！\b";
+	char texts3[] = "过了这里我就可以找到神奇的彩虹石了！\b咦？这里怎么有障碍物鸭？\0";
+	char texts4[] = "谜题：请用wsad打出与题目相同的东西\0";
+	char texts5[] = "恭喜获得彩虹石*1\n就这样，小蛇把彩虹石带回给一朵花花，花花发出美丽的光芒\n小蛇与朋友们欢快的玩耍，成为了溪流畔最幸福的伙伴";
+	char texts6[] = "你什么也没得到\n就这样，小蛇走到花花前，花花拍了拍小蛇的背，静静的陪小蛇坐了一会儿\n他们就静静的看着大海的远方......";
 	char* text = texts1;
+	switch (num) {
+	case 1:
+		text = texts1; break;
+	case 2:
+		text = texts2; break;
+	case 3:
+		text = texts3; break;
+	case 4:
+		text = texts4; break;
+	case 5:
+		text = texts5; break;
+	case 6:
+		text = texts6; break;
+	}
 	// 用指针指向字符，进行比对
 	while (*text != '\0') {// 字符数组末尾
 		if (*text == '\b') {// 回退
@@ -101,7 +118,11 @@ void initTextEffects() {
 				printf("\b\b  \b\b");
 				Sleep(50);
 			}			
-		} else {
+		}
+		else if (*text == '\n') {
+			printf("\n");
+		}
+		else {
 			printf("%c", *text);
 		}
 		fflush(stdout);// 实时把缓存区的内容输出到屏幕上
@@ -336,9 +357,6 @@ int move_snake(int current, int num, char* num1) {
 		return 1;
 	}
 
-	// 撞障碍物
-
-
 	// 检查是否撞到自己的身体
 	SnakeHeaden* current_body = (SnakeHeaden*)malloc(sizeof(SnakeHeaden));
 	current_body = head->next;
@@ -422,6 +440,30 @@ int move_snake(int current, int num, char* num1) {
 	return 0;
 }
 
+void move_snake_Story(int timenum/*有多长，走多远*/) {
+	SnakeHeaden* current = head;
+	int num = 0;
+	while (1) {
+		if (!(num < timenum)) {
+			break;
+		}
+		while (1) {
+			if (current->next == NULL) {
+				moveToXY(current->index_COLS, current->index_ROWS);
+				printf("     ");
+				current->index_COLS++;
+				break;
+			}
+			current->index_COLS++;
+			current = current->next;
+		}
+		printsnake(0);
+		current = head;
+		num++;
+		Sleep(250);
+	}		
+}
+
 void last_wait(int num, int choice) {
 	moveToXY(0, ROWS);// 到底框下一排最前面
 	if (num == 1) {
@@ -474,8 +516,7 @@ void WelcomeScreen(int* currentDirection) {
 	printf("              请选择功能               \n");
 	printf("                                       \n");
 	printf("              1. 无限模式              \n");
-//	printf("              2. 闯关模式              \n");
-//	printf("              3. 神秘模式              \n");
+	printf("              2. 闯关模式              \n");;
 	printf("                                       \n");
 	printf("=======================================\n");
 	printf("                                       \n");
@@ -484,16 +525,15 @@ void WelcomeScreen(int* currentDirection) {
 	ClearInput();
 	while (1) {
 		scanf("%d", &choice);
-
 		switch (choice) {
 		case 1:
 			system("cls");
 			initScreen(currentDirection, 0);
-			break;
-		//case 2:
-		//	system("cls");
-		//	StoryMode();
-		//	break;
+			return;
+		case 2:
+			system("cls");
+			StoryMode();
+			return;
 		default:			
 			printf("选错了，重新选。");
 			moveToXY(21, 12-1);
@@ -540,9 +580,59 @@ void initScreen(int* currentDirection, int num/*看是不是首次进入程序*/
 	last_wait(choice, num);// 结算程序结束后，满足惊喜条件就去游戏主界面，不满足直接走了
 }
 
+void StoryMode() {
+	// 需求：把蛇只剩3个
+	SetConsoleTitle(TEXT("贪吃蛇讲故事"));// 标签改变		
+	if (head->next != NULL) {// 把n节蛇变成1节蛇
+		head->next = NULL;
+	}
+	int timenum = 1;// 现在蛇节数
+	// 修改蛇头位置
+	head->index_ROWS = 5 - 1;
+	head->index_COLS = 0;
+	head->data = SNAKE_HEAD_CHAR;
+	// head->next上面已定义，此位置不做说明
+	printsnake(0);// 打印蛇头
+	timenum = story_addsnake(head, timenum);// 增加到5节蛇
+	move_snake_Story(timenum);// 移动5个单元
+	moveToXY(0, head->index_ROWS + 1);// 在蛇旁边一个单元旁加剧情
+	initTextEffects(2);
+	system("cls");
+	moveToXY(0, 0);
+	initTextEffects(3);
+	Sleep(500);
+	moveToXY(0, 1);
+	initTextEffects(4);
+	moveToXY(0, 2);// 第三排
+	printf("↑→↓←↑↓→←↓←↑→↑→↓←↑→↑→↓←↑→↓←↓→←↑←↓→");
+	moveToXY(0, 3);// 第四排
+	char cc[100];
+	scanf("%s", cc);
+	int result = strcmp(cc, "wdsawsdasawdwdsawdwdsawdsasdawasd");
+	moveToXY(0, 5);
+	if (result == 0) {
+		printf("哇！我找到彩虹石了！谢谢你");
+	}
+	else {
+		printf("彩虹石丢了！好气好气！不跟你玩了ε(┬┬﹏┬┬)3");
+	}
+	Sleep(2000);
+	system("cls");
+	moveToXY(0, 0);
+	if (result == 0) {
+		initTextEffects(5);
+	}
+	else {
+		initTextEffects(6);
+	}
+	printf("\n         故事终          ");
+	Sleep(4000);
+	return;
+}
+
 int main() {
+	//initTextEffects(1);// 介绍程序
 	disableCursor();
-	initTextEffects();// 介绍程序
 	int currentDirection = -2;// 蛇移动中的方向
 	initScreen(&currentDirection, 1);// 首次进入
 	WelcomeScreen(&currentDirection);
